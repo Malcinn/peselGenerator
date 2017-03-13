@@ -2,6 +2,9 @@ window.addEventListener("load", function() {
 	console.log("Hello World!");
 	var randomPesel = new RandomPesel();
 	document.getElementById("pesel").innerHTML = randomPesel.getRandomPesel();
+	var randomIDNumber = new RandomIDNumber();
+	document.getElementById("IDNumber").innerHTML = randomIDNumber.getIDNumber();
+	
 });
 
 function MyMath() {
@@ -167,15 +170,86 @@ function RandomPesel() {
 }
 
 
-function IDNumber() {
+function RandomIDNumber() {
 	
 	this.numbers = [7, 3, 1, 7, 3, 1, 7, 3];
 	this.letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 	this.lettersValues = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
 	
-	this.getIDNumber = function() {
+	/**
+	This method returns Random letters array. Returned array length = 3, element scope [A-Z].
+	*/
+	this.getRandomLettersArray = function () {
+		var lettersSection = [];
 		var myMath = new MyMath();
-		var randomLetterPosition = myMath.getRandomInt(0,26);
+		for (i=0; i<3; i++){
+			var randomLetterPosition = myMath.getRandomInt(0, this.letters.length-1);
+			lettersSection.push(this.letters[randomLetterPosition]);
+		}
+		return lettersSection;
 	}
+	
+	/**
+	This method returns random number array. Returned array length = 5, element scope [0-9].
+	*/
+	this.getRandomNumbersArrayWithoutControlNumber = function () {
+		var numbersSection = [];
+		var myMath = new MyMath();
+		for (i=0; i<5; i++) {
+			var randomNumber = myMath.getRandomInt(0, 9);
+			numbersSection.push(randomNumber);
+		}
+		return numbersSection;
+	}
+	
+	/**
+	This method returns value of letter passed as parameter. 
+	Letters are stored in letters field array, and values of those letters are stored in lettersValues field array.
+	*/
+	this.getValueOfLetter = function(letter) {
+		var letterIndex = this.letters.indexOf(letter);
+		return this.lettersValues[letterIndex];
+	}
+	
+	/**
+	This function returns Array as String. Elements are not splited with any character.
+	*/
+	this.getArrayAsString = function(array) {
+		var arrayAsString = new String();
+		for (i=0; i<array.length; i++) {
+			arrayAsString += array[i];
+		}
+		return arrayAsString;
+	}
+	
+	/**
+	This method compute and returns control number based on randomLettersArray and randomNumbersArray passed as parameters.
+	*/
+	this.getControlNumber = function (randomLettersArray, randomNumbersArray) {
+		var expression = this.getArrayAsString(randomLettersArray) +  this.getArrayAsString(randomNumbersArray);
+		var sum = 0;
+		
+		for (i=0; i<this.numbers.length; i++) {
+			var character = expression.charAt(i);
+			var number = 0;
+			if (i < 3) {
+				number = this.getValueOfLetter(character);
+			} else {
+				number = Number(character);
+			}
+			sum += this.numbers[i] * number;
+		}
+		return sum % 10;
+	}
+	
+	/**
+	This method return IDNumber as A string.
+	*/
+	this.getIDNumber = function() {
+		var randomLettersArray = this.getRandomLettersArray();
+		var randomNumbersArray = this.getRandomNumbersArrayWithoutControlNumber();
+		var controlNumber = this.getControlNumber(randomLettersArray, randomNumbersArray);
+		return this.getArrayAsString(randomLettersArray) + controlNumber + this.getArrayAsString(randomNumbersArray);
+  }
 	
 }
